@@ -1,4 +1,4 @@
-import algorithm, os, osproc, strutils
+import algorithm, os, osproc, sequtils, sets, strutils
 
 proc processFile(filePath: string) =
   ## More-pretty a file.
@@ -28,6 +28,7 @@ proc processFile(filePath: string) =
     else:
       if imports.len > 0:
         ## End of import block.
+        imports = toSeq(toHashSet(imports)) ## Remove duplicate imports
         imports.sort()
         output.add "import " & imports.join(", ")
         imports.setLen(0)
