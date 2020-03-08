@@ -1,12 +1,12 @@
-import strutils, os, algorithm, osproc
+import algorithm, os, osproc, strutils
 
 proc processFile(filePath: string) =
   ## More-pretty a file.
   var
-    importNextLineToo = false  ## Should import next line?
-    imports: seq[string] ## List of imports in the block.
-    blankLines = 0 ## How many blank lines above?
-    output: seq[string] ## Building output lines in this file.
+    importNextLineToo = false ## Should import next line?
+    imports: seq[string]      ## List of imports in the block.
+    blankLines = 0            ## How many blank lines above?
+    output: seq[string]       ## Building output lines in this file.
 
   proc addLine(line: string) =
     for lib in line.split(","):
@@ -15,7 +15,7 @@ proc processFile(filePath: string) =
         imports.add(lib)
 
   for line in readFile(filePath).split("\n"):
-    let line = line.replace("\r","")
+    let line = line.replace("\r", "")
     if importNextLineToo:
       addLine(line)
       importNextLineToo = false
@@ -41,7 +41,7 @@ proc processFile(filePath: string) =
 
       output.add(line)
 
-  writeFile(filePath, output.join("\n").strip(leading=false) & "\n")
+  writeFile(filePath, output.join("\n").strip(leading = false) & "\n")
   discard execCmdEx("nimpretty " & filePath)
 
 # Walk thorugh all .nim files in this and sub dirs.
