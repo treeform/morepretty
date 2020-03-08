@@ -10,4 +10,4 @@
 
 **so morepretty does all of that!**
 
-morepretty runs nimpretty first so you only ever need to run one command to format your code.
+morepretty runs nimpretty too so you only ever need to run one command to format your code.
