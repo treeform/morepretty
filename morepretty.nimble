@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "treeform"
-description   = "morepretty - more pretty then nimpretty"
+description   = "morepretty - More pretty than nimpretty."
 license       = "MIT"
 srcDir        = "src"
 
