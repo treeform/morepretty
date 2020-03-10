@@ -74,7 +74,7 @@ proc processFile(filePath: string) =
   output = formatBlankLines(output)
 
   writeFile(filePath, output.join("\n").strip(leading = false) & "\n")
-  discard execCmdEx("nimpretty " & filePath)
+  discard execCmdEx("nimpretty --indent:2 " & filePath)
 
 # Walk thorugh all .nim files in this and sub dirs.
 for f in walkDirRec(getCurrentDir()):
