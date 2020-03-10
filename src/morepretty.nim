@@ -35,13 +35,15 @@ proc processFile(filePath: string) =
 
   # Find all imports at the top of the file (possibly across multiple lines)
   # Add all not-import lines to next
-  for line in input:
+  var firstImportLine = len(input)
+  for i, line in input:
     if importNextLineToo:
       importsLine(line)
       importNextLineToo = false
       if line.endsWith(","):
         importNextLineToo = true
     elif line.startsWith("import"):
+      firstImportLine = min(i, firstImportLine)
       importsLine(line[6..^1])
       if line.endsWith(","):
         importNextLineToo = true
@@ -51,9 +53,9 @@ proc processFile(filePath: string) =
   # Holds the entire file with "import " lines stripped out
   next = formatBlankLines(next)
 
-  for line in next:
-    # File comments before imports
-    if line.startsWith("#"):
+  for i, line in next:
+    # File comments before imports (must have come before first import line)
+    if line.startsWith("#") and i < firstImportLine:
       output.add(line)
       continue
 
