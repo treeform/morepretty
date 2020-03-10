@@ -55,7 +55,7 @@ proc processFile(filePath: string) =
 
   for i, line in next:
     # File comments before imports (must have come before first import line)
-    if line.startsWith("#") and i < firstImportLine:
+    if (line.startsWith("#") or line == "") and i < firstImportLine:
       output.add(line)
       continue
 
