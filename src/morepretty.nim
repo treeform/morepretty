@@ -19,42 +19,71 @@ proc formatLines(input: seq[string]): seq[string] =
 
     result.add(line)
 
+proc importsExports(s: var seq[string], line: string) =
+  for lib in line.split(","):
+    let lib = lib.strip()
+    if lib.len > 0:
+      s.add(lib)
+
 proc processFile(filePath: string) =
   ## More-pretty a file.
   var
-    importNextLineToo = false ## Should import next line?
-    imports: seq[string]      ## List of imports in the block.
-    input: seq[string]        ## Initial lines for a step.
+    imports, exports: seq[string]      ## List of imports in the block.
     next: seq[string]         ## Set of modified lines passed to next step.
     output: seq[string]       ## Building output lines in this file.
-
-  proc importsLine(line: string) =
-    for lib in line.split(","):
-      let lib = lib.strip()
-      if lib.len > 0:
-        imports.add(lib)
-
-  input = readFile(filePath).split("\n")
+    input = readFile(filePath).split("\n")
+    firstImportLine = len(input)
+    firstExportLine = len(input)
+    importNextLineToo = false ## Should import next line?
+    exportNextLineToo = false
 
   # Find all imports at the top of the file (possibly across multiple lines)
-  # Add all not-import lines to next
-  var firstImportLine = len(input)
+  # Add all not import and export lines to next
   for i, line in input:
     if importNextLineToo:
-      importsLine(line)
+      importsExports(imports, line)
       importNextLineToo = false
       if line.endsWith(","):
         importNextLineToo = true
+    elif exportNextLineToo:
+      importsExports(exports, line)
+      exportNextLineToo = false
+      if line.endsWith(","):
+        exportNextLineToo = true
     elif line.startsWith("import"):
       firstImportLine = min(i, firstImportLine)
-      importsLine(line[6..^1])
+      importsExports(imports, line[6..^1])
       if line.endsWith(","):
         importNextLineToo = true
+    elif line.startsWith("export"):
+      firstExportLine = min(i, firstExportLine)
+      importsExports(exports, line[6..^1])
+      if line.endsWith(","):
+        exportNextLineToo = true
     else:
       next.add(line)
 
   # Holds the entire file with "import " lines stripped out
   next = formatLines(next)
+
+  proc writeSorted(label: string, items: seq[string]): string =
+    var items = toSeq(toHashSet(items)) # Remove duplicates
+    items.sort()
+    label & items.join(", ")
+
+  proc writeImports() =
+    # Add excess blank lines that are removed later
+    output.add("")
+    output.add(writeSorted("import ", imports))
+    output.add("")
+    imports.setLen(0)
+
+  proc writeExports() =
+    # Add excess blank lines that are removed later
+    output.add("")
+    output.add(writeSorted("export ", exports))
+    output.add("")
+    exports.setLen(0)
 
   for i, line in next:
     # File comments before imports (must have come before first import line)
@@ -64,15 +93,25 @@ proc processFile(filePath: string) =
 
     # Add imports back after file comments
     if imports.len > 0:
-      imports = toSeq(toHashSet(imports)) # Remove duplicate imports
-      imports.sort()
-      # Add excess blank lines that are removed later
-      output.add("")
-      output.add("import " & imports.join(", "))
-      output.add("")
-      imports.setLen(0)
+      writeImports()
+
+    # Any comments before exports (must have come before first export line)
+    if (line.startsWith("#") or line == "") and i < firstExportLine:
+      output.add(line)
+      continue
+
+    # Add exports back
+    if exports.len > 0:
+      writeExports()
 
     output.add(line)
+
+  # In the case we've removed enough lines that these never have chance to get
+  # written. This isn't likely but can happen.
+  if len(imports) > 0:
+    writeImports()
+  if len(exports) > 0:
+    writeExports()
 
   output = formatLines(output)
 
