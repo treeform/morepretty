@@ -1,18 +1,21 @@
 import algorithm, os, osproc, sequtils, sets, strutils
 
-proc formatBlankLines(input: seq[string]): seq[string] =
+proc formatLines(input: seq[string]): seq[string] =
   ## Remove \r and excess blank lines.
   var
     blankLines = 0
 
   for i, line in input:
-    let line = line.replace("\r", "")
+    var line = line.replace("\r", "")
     if line.strip() == "":
       if blankLines > 0 or i == 0:
         continue
       inc blankLines
     else:
       blankLines = 0
+
+      if line[^1] == ';':
+        line = line[0..^2]
 
     result.add(line)
 
@@ -51,7 +54,7 @@ proc processFile(filePath: string) =
       next.add(line)
 
   # Holds the entire file with "import " lines stripped out
-  next = formatBlankLines(next)
+  next = formatLines(next)
 
   for i, line in next:
     # File comments before imports (must have come before first import line)
@@ -71,7 +74,7 @@ proc processFile(filePath: string) =
 
     output.add(line)
 
-  output = formatBlankLines(output)
+  output = formatLines(output)
 
   writeFile(filePath, output.join("\n").strip(leading = false) & "\n")
   discard execCmdEx("nimpretty --indent:2 " & filePath)
