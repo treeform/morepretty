@@ -50,12 +50,12 @@ proc processFile(filePath: string) =
       exportNextLineToo = false
       if line.endsWith(","):
         exportNextLineToo = true
-    elif line.startsWith("import"):
+    elif line.startsWith("import") and "except" notin line:
       firstImportLine = min(i, firstImportLine)
       importsExports(imports, line[6..^1])
       if line.endsWith(","):
         importNextLineToo = true
-    elif line.startsWith("export"):
+    elif line.startsWith("export") and "except" notin line:
       firstExportLine = min(i, firstExportLine)
       importsExports(exports, line[6..^1])
       if line.endsWith(","):
