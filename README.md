@@ -1,5 +1,13 @@
 # morepretty - More pretty than nimpretty.
 
+`nimble install morepretty`
+
+![Github Actions](https://github.com/treeform/morepretty/workflows/Github%20Actions/badge.svg)
+
+[API reference](https://nimdocs.com/treeform/morepretty)
+
+This library has no dependencies other than the Nim standard library.
+
 ## nimpretty does not ...
 
 * organize imports
