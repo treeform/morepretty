@@ -2,11 +2,7 @@
 
 `nimble install morepretty`
 
-![Github Actions](https://github.com/treeform/morepretty/workflows/Github%20Actions/badge.svg)
-
-[API reference](https://nimdocs.com/treeform/morepretty)
-
-This library has no dependencies other than the Nim standard library.
+This command line has no dependencies other than the Nim standard library.
 
 ## nimpretty does not ...
 
@@ -18,4 +14,4 @@ This library has no dependencies other than the Nim standard library.
 
 **so morepretty does all of that!**
 
-morepretty runs nimpretty too so you only ever need to run one command to format your code.
+`morepretty` runs `nimpretty` too so you only ever need to run one command to format your code.
